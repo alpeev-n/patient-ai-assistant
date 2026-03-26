@@ -19,6 +19,7 @@ AI assistant for patients after diagnosis.
 ```bash
 pip install -r requirements.txt
 python -m app.models.object_model
+```
 
 ## Status
 Development
