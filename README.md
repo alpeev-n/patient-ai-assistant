@@ -1,24 +1,31 @@
 # patient-ai-assistant
 
-AI assistant for patients after diagnosis.
+AI assistant for patients after receiving a medical diagnosis.
 
 ## What it does
-- Provides psychological support: calms the patient and helps them understand and accept the diagnosis
-- Explains the diagnosis in plain language
-- Creates an action plan for next steps after diagnosis
-- Generates a list of questions for the doctor
-- Recommends additional examinations
+
+- Provides psychological support: calms the patient and helps them understand and accept the diagnosis.
+- Explains the diagnosis in plain, non‑technical language.
+- Creates an actionable plan for next steps (e.g., follow‑up appointments, lifestyle changes).
+- Generates a list of questions for the doctor.
+- Recommends additional examinations (with explanations).
+
+## Why it matters
+
+Supporting patients emotionally and informationally right after a diagnosis can reduce anxiety, improve understanding, and lead to better adherence to treatment.
 
 ## Tech Stack
-- Python 3.11+
-- FastAPI
-- QWEN API
-- PostgreSQL
+
+- Backend: Python 3.11+
+- Framework: FastAPI
+- AI provider: Qwen API
+- Database: PostgreSQL
 
 ## Running the App
+
+1. Install dependencies:
 ```bash
 pip install -r requirements.txt
-python -m app.models.object_model
 ```
 
 ## Status
