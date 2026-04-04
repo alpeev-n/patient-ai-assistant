@@ -1,3 +1,5 @@
 transformers>=4.51.0
 torch>=2.2.0
 accelerate>=0.30.0
+fastapi
+uvicorn

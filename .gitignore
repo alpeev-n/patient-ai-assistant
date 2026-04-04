@@ -98,6 +98,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
+.DS_Store
 .env
 .envrc
 .venv
@@ -106,8 +107,6 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-.pre-commit-config.yaml
-.gitignore
 # Spyder project settings
 .spyderproject
 .spyproject
