@@ -12,3 +12,4 @@ class Balance:
 
     def get_amount(self) -> float:
         return self._amount
+

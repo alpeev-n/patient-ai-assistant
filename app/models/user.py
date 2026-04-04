@@ -16,3 +16,4 @@ class User:
         self.role = role
         self.__password_hash = password_hash
         self.balance = Balance(balance)
+

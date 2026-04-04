@@ -31,3 +31,4 @@ class DebitTransaction(Transaction):
 class CreditTransaction(Transaction):
     def apply(self) -> None:
         self.user.balance.deposit(self.amount)
+
