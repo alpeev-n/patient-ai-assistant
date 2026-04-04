@@ -11,6 +11,20 @@
 3. Receives a structured AI-generated response
 4. Views history of previous requests
 
+### Domain Entities
+
+| Class | Responsibility |
+|---|---|
+| `User` | Stores user data, holds reference to Balance |
+| `Balance` | Encapsulates balance logic: deposit, withdraw |
+| `MLModel` | Abstract model definition, performs prediction |
+| `MLTask` | Ties user, model and input data together, runs prediction |
+| `PredictionResult` | Stores structured output from the model |
+| `PredictionHistory` | Stores list of user's past tasks |
+| `Transaction` | Abstract financial operation |
+| `DebitTransaction` | Withdraws from user balance |
+| `CreditTransaction` | Deposits to user balance |
+
 ### What the system returns
 ```
 PredictionResult
