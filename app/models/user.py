@@ -1,4 +1,3 @@
-from app.models.balance import Balance
 from app.models.enums import UserRole
 
 
@@ -15,5 +14,16 @@ class User:
         self.email = email
         self.role = role
         self.__password_hash = password_hash
-        self.balance = Balance(balance)
+        self._balance = balance
 
+    def deposit(self, amount: float) -> None:
+        self._balance += amount
+
+    def withdraw(self, amount: float) -> None:
+        if amount > self._balance:
+            raise ValueError("Insufficient balance")
+        else:
+            self._balance -= amount
+
+    def get_balance(self) -> float:
+        return self._balance

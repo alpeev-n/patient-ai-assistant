@@ -25,10 +25,9 @@ class Transaction(ABC):
 
 class DebitTransaction(Transaction):
     def apply(self) -> None:
-        self.user.balance.withdraw(self.amount)
+        self.user.withdraw(self.amount)
 
 
 class CreditTransaction(Transaction):
     def apply(self) -> None:
-        self.user.balance.deposit(self.amount)
-
+        self.user.deposit(self.amount)
