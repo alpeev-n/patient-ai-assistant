@@ -144,7 +144,6 @@ cython_debug/
 .pypirc
 
 claude.md
-claude_gd.md
 
 # Marimo
 marimo/_static/
