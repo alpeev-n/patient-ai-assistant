@@ -15,15 +15,16 @@
 
 | Class | Responsibility |
 |---|---|
-| `User` | Stores user data, holds reference to Balance |
-| `Balance` | Encapsulates balance logic: deposit, withdraw |
-| `MLModel` | Abstract model definition, performs prediction |
+| `User` | Stores user data, delegates balance operations to Balance |
+| `Balance` | Encapsulates balance logic: deposit, withdraw, validation |
+| `MLModel` | Abstract model definition, declares predict() interface |
+| `PatientAssistantModel` | Concrete ML model, returns structured prediction |
 | `MLTask` | Ties user, model and input data together, runs prediction |
 | `PredictionResult` | Stores structured output from the model |
 | `PredictionHistory` | Stores list of user's past tasks |
 | `Transaction` | Abstract financial operation |
-| `DebitTransaction` | Withdraws from user balance |
-| `CreditTransaction` | Deposits to user balance |
+| `DebitTransaction` | Withdraws from user balance via user.withdraw() |
+| `CreditTransaction` | Deposits to user balance via user.deposit() |
 
 ### What the system returns
 ```

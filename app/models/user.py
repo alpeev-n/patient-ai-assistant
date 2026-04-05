@@ -15,4 +15,13 @@ class User:
         self.email = email
         self.role = role
         self.__password_hash = password_hash
-        self.balance = Balance(balance)
+        self._balance = Balance(balance)
+
+    def deposit(self, amount: float) -> None:
+        self._balance.deposit(amount)
+
+    def withdraw(self, amount: float) -> None:
+        self._balance.withdraw(amount)
+
+    def get_balance(self) -> float:
+        return self._balance.amount

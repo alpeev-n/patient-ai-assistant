@@ -10,5 +10,6 @@ class Balance:
             raise ValueError("Insufficient balance")
         self._amount -= amount
 
-    def get_amount(self) -> float:
+    @property
+    def amount(self) -> float:
         return self._amount
