@@ -7,14 +7,15 @@ services:
     depends_on:
       database:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     restart: on-failure
-    volumes:
-    - .:/project
 
   web-proxy:
     build: ./web-proxy
     depends_on:
       - app
+    restart: on-failure
     ports:
       - "80:80"
       - "443:443"
@@ -25,7 +26,7 @@ services:
       - .env
     restart: on-failure
     volumes:
-      - ./postgres_data:/var/lib/postgresql/data
+      - postgres_volume:/var/lib/postgresql/data
     healthcheck:                                                                                                                                                              
       test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
       interval: 10s
@@ -34,11 +35,20 @@ services:
 
   rabbitmq:
     image: rabbitmq:management
+    env_file:
+      - .env
+    restart: on-failure
+    volumes:
+      - rabbitmq_volume:/var/lib/rabbitmq
+    healthcheck:                                                                                                                                                              
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 15s
+      retries: 3
     ports:
       - "5672:5672"
       - "15672:15672"
-    volumes:
-      - ./rabbitmq_data:/var/lib/rabbitmq
-    restart: on-failure
-    env_file:
-      - .env
+
+volumes:
+  postgres_volume:
+  rabbitmq_volume:
