@@ -22,7 +22,10 @@ def build_database_url() -> str:
 engine = create_engine(build_database_url())
 
 SessionLocal = sessionmaker(
-    autocommit=False, autoflush=False, bind=engine, expire_on_commit=False
+    autocommit=False,
+    autoflush=False,
+    bind=engine,
+    expire_on_commit=False
 )
 
 

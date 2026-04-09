@@ -19,19 +19,34 @@ class MLTask(Base):
     )
 
     user_id: Mapped[str] = mapped_column(
-        ForeignKey("users.id"), nullable=False, index=True
+        ForeignKey("users.id"),
+        nullable=False,
+        index=True
     )
 
     model_id: Mapped[str] = mapped_column(
-        ForeignKey("ml_models.id"), nullable=False, index=True
+        ForeignKey("ml_models.id"),
+        nullable=False,
+        index=True
     )
 
-    input_data: Mapped[dict] = mapped_column(JSON, nullable=False)
+    input_data: Mapped[dict] = mapped_column(
+        JSON,
+        nullable=False
+    )
 
-    status: Mapped[str] = mapped_column(String(50), nullable=False, default="pending")
+    status: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False,
+        default="pending"
+    )
 
-    result: Mapped[dict] = mapped_column(JSON, nullable=True)
+    result: Mapped[dict] = mapped_column(
+        JSON,
+        nullable=True
+    )
 
     created_at: Mapped[datetime] = mapped_column(
-        nullable=False, server_default=func.now()
+        nullable=False,
+        server_default=func.now()
     )

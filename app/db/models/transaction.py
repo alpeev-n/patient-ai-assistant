@@ -19,15 +19,29 @@ class Transaction(Base):
         index=True,
     )
     user_id: Mapped[str] = mapped_column(
-        ForeignKey("users.id"), nullable=False, index=True
+        ForeignKey("users.id"),
+        nullable=False,
+        index=True
     )
     task_id: Mapped[str | None] = mapped_column(
-        ForeignKey("ml_tasks.id"), nullable=True, index=True
+        ForeignKey("ml_tasks.id"),
+        nullable=True,
+        index=True
     )
-    type: Mapped[str] = mapped_column(String(10), nullable=False)
-    amount: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
+
+    type: Mapped[str] = mapped_column(
+        String(10),
+        nullable=False
+    )
+
+    amount: Mapped[Decimal] = mapped_column(
+        Numeric(10, 2),
+        nullable=False
+    )
+
     created_at: Mapped[datetime] = mapped_column(
-        nullable=False, server_default=func.now()
+        nullable=False,
+        server_default=func.now()
     )
 
     __table_args__ = (
