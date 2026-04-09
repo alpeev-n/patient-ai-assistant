@@ -3,7 +3,7 @@ import unittest
 from app.models.enums import UserRole, TaskStatus
 from app.models.user import User
 from app.models.ml_model import PatientAssistantModel
-from app.models.task import MLTask
+from app.models.ml_task import MLTask
 from app.models.prediction import PredictionResult
 
 

@@ -139,7 +139,7 @@ cython_debug/
 .abstra/
 
 .ruff_cache/
-
+claude_gd.md
 # PyPI configuration file
 .pypirc
 

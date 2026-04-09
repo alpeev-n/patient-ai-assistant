@@ -1,7 +1,7 @@
 from typing import List
 
 from app.models.user import User
-from app.models.task import MLTask
+from app.models.ml_task import MLTask
 
 
 class PredictionHistory:

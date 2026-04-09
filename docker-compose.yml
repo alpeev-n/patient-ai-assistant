@@ -1,7 +1,7 @@
 services:
 
   app:
-    build: ./app
+    build: .
     env_file:
       - .env
     depends_on:
