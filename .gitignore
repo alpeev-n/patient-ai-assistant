@@ -139,11 +139,11 @@ cython_debug/
 .abstra/
 
 .ruff_cache/
-
 # PyPI configuration file
 .pypirc
 
 claude.md
+memory.md
 
 # Marimo
 marimo/_static/
