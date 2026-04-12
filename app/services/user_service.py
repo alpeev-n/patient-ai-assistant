@@ -1,6 +1,7 @@
 from decimal import Decimal
 from sqlalchemy.orm import Session
 
+from app.models.enums import TransactionType
 from app.db.models import User
 from app.db.models import Transaction
 
@@ -31,7 +32,9 @@ class UserService:
     def deposit(self, user_id: str, amount: Decimal) -> None:
         user = self.get_user_by_id(user_id)
         user.balance += amount
-        transaction = Transaction(user_id=user.id, type="credit", amount=amount)
+        transaction = Transaction(
+            user_id=user.id, type=TransactionType.CREDIT, amount=amount
+        )
         self.__session.add(transaction)
         self.__session.commit()
 
@@ -43,6 +46,8 @@ class UserService:
 
         user.balance -= amount
 
-        transaction = Transaction(user_id=user.id, type="debit", amount=amount)
+        transaction = Transaction(
+            user_id=user.id, type=TransactionType.DEBIT, amount=amount
+        )
         self.__session.add(transaction)
         self.__session.commit()

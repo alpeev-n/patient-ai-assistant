@@ -143,6 +143,7 @@ cython_debug/
 .pypirc
 
 claude.md
+memory.md
 
 # Marimo
 marimo/_static/

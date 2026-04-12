@@ -7,6 +7,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app.database import Base
+from app.models.enums import UserRole, TaskStatus
 from app.services.user_service import UserService
 from app.services.prediction_history import PredictionHistory
 
@@ -23,16 +24,20 @@ def session():
 
 def test_create_user(session):
     service = UserService(session)
-    user = service.create_user(email="test@example.com", password="secret", role="user")
+    user = service.create_user(
+        email="test@example.com", password="secret", role=UserRole.PATIENT
+    )
 
-    assert user.email == "test@example.com"
-    assert user.role == "user"
     assert user.id is not None
+    assert user.email == "test@example.com"
+    assert user.role == UserRole.PATIENT
 
 
 def test_deposit_and_withdraw(session):
     service = UserService(session)
-    user = service.create_user(email="test@example.com", password="secret", role="user")
+    user = service.create_user(
+        email="test@example.com", password="secret", role=UserRole.PATIENT
+    )
 
     service.deposit(user.id, Decimal("100.00"))
     assert user.balance == Decimal("100.00")
@@ -44,7 +49,9 @@ def test_deposit_and_withdraw(session):
 
 def test_insufficient_funds(session):
     service = UserService(session)
-    user = service.create_user(email="test@example.com", password="secret", role="user")
+    user = service.create_user(
+        email="test@example.com", password="secret", role=UserRole.PATIENT
+    )
 
     with pytest.raises(ValueError, match="Insufficient funds"):
         service.withdraw(user.id, Decimal("10.00"))
@@ -55,7 +62,7 @@ def test_prediction_history(session):
 
     user_service = UserService(session)
     user = user_service.create_user(
-        email="test@example.com", password="secret", role="user"
+        email="test@example.com", password="secret", role=UserRole.PATIENT
     )
 
     model = MLModel(name="TestModel", description="Test", cost=Decimal("1.00"))
@@ -63,9 +70,13 @@ def test_prediction_history(session):
     session.commit()
 
     task1 = MLTask(
-        user_id=user.id, model_id=model.id, status="completed", input_data="{}"
+        user_id=user.id, model_id=model.id, status=TaskStatus.DONE, input_data="{}"
     )
-    task2 = MLTask(user_id=user.id, model_id=model.id, status="failed", input_data="{}")
+
+    task2 = MLTask(
+        user_id=user.id, model_id=model.id, status=TaskStatus.FAILED, input_data="{}"
+    )
+
     session.add_all([task1, task2])
     session.commit()
 

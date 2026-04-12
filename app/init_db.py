@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.db.models import MLModel
 from app.services.user_service import UserService
+from app.models.enums import UserRole
 
 
 def init_db(session: Session) -> None:
@@ -13,7 +14,7 @@ def init_db(session: Session) -> None:
         user = user_service.get_user_by_email(demo_user_email)
     except ValueError:
         user = user_service.create_user(
-            email=demo_user_email, password="password", role="user"
+            email=demo_user_email, password="password", role=UserRole.PATIENT
         )
         user_service.deposit(user.id, Decimal("1000.00"))
 
@@ -21,7 +22,9 @@ def init_db(session: Session) -> None:
     try:
         user_service.get_user_by_email(admin_email)
     except ValueError:
-        user_service.create_user(email=admin_email, password="admin", role="admin")
+        user_service.create_user(
+            email=admin_email, password="admin", role=UserRole.ADMIN
+        )
 
     default_models = [
         {
