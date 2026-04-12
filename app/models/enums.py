@@ -3,6 +3,7 @@ from enum import Enum
 
 class UserRole(Enum):
     PATIENT = "patient"
+    ADMIN = "admin"
 
 
 class TaskStatus(Enum):
