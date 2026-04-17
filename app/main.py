@@ -5,10 +5,19 @@ load_dotenv()
 from fastapi import FastAPI
 from sqlalchemy.orm import Session
 import app.db.models
+from app.api.auth import router as auth_router
+from app.api.balance import router as balance_router
+from app.api.predict import router as predict_router
+from app.api.prediction_history import router as history_router
 from app.database import engine, Base, get_db
 from app.init_db import init_db
 
 app = FastAPI()
+
+app.include_router(auth_router)
+app.include_router(balance_router)
+app.include_router(predict_router)
+app.include_router(history_router)
 
 
 @app.on_event("startup")
