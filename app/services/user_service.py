@@ -38,7 +38,9 @@ class UserService:
         self.__session.add(transaction)
         self.__session.commit()
 
-    def withdraw(self, user_id: str, amount: Decimal) -> None:
+    def withdraw(
+        self, user_id: str, amount: Decimal, task_id: str | None = None
+    ) -> None:
         user = self.get_user_by_id(user_id)
 
         if user.balance < amount:
@@ -47,7 +49,7 @@ class UserService:
         user.balance -= amount
 
         transaction = Transaction(
-            user_id=user.id, type=TransactionType.DEBIT, amount=amount
+            user_id=user.id, type=TransactionType.DEBIT, amount=amount, task_id=task_id
         )
         self.__session.add(transaction)
         self.__session.commit()
