@@ -11,6 +11,30 @@ services:
         condition: service_healthy
     restart: on-failure
 
+  worker-1:
+    build: .
+    command: python -m app.workers.ml_worker
+    env_file:
+      - .env
+    depends_on:
+      database:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: on-failure
+
+  worker-2:
+    build: .
+    command: python -m app.workers.ml_worker
+    env_file:
+      - .env
+    depends_on:
+      database:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: on-failure
+
   web-proxy:
     build: ./web-proxy
     depends_on:
