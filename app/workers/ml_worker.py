@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+
 load_dotenv()
 import json
 import os
@@ -13,7 +14,7 @@ ml_model = PatientAssistantModel(
     id="patient_assistant_v1",
     name="Patient Assistant",
     description="Zero-shot triage model",
-    cost_per_prediction=0.01
+    cost_per_prediction=0.01,
 )
 
 
@@ -41,6 +42,7 @@ def process_message(ch, method, properties, body):
 
     except Exception as e:
         import traceback
+
         print(f"Error processing task: {e}", flush=True)
         print(traceback.format_exc(), flush=True)
         ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)

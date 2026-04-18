@@ -16,12 +16,12 @@ class MLModel(ABC):
     @abstractmethod
     def predict(self, input_data: dict) -> dict: ...
 
+
 class PatientAssistantModel(MLModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._client = OpenAI(
-            api_key=os.getenv("QWEN_API_KEY"),
-            base_url=os.getenv("QWEN_BASE_URL")
+            api_key=os.getenv("QWEN_API_KEY"), base_url=os.getenv("QWEN_BASE_URL")
         )
 
     def predict(self, input_data: dict) -> dict:
@@ -32,8 +32,12 @@ class PatientAssistantModel(MLModel):
                 "psychological_support": "No symptoms provided.",
                 "diagnosis_summary": "Insufficient data for analysis.",
                 "doctor_questions": [],
-                "examination_plan": {"urgent": [], "regular_monitoring": [], "self_monitoring": []},
-                "evidence_based_recommendations": []
+                "examination_plan": {
+                    "urgent": [],
+                    "regular_monitoring": [],
+                    "self_monitoring": [],
+                },
+                "evidence_based_recommendations": [],
             }
 
         prompt = f"""You are a medical assistant. Analyze the following symptoms and return a JSON response.
@@ -58,7 +62,7 @@ class PatientAssistantModel(MLModel):
         response = self._client.chat.completions.create(
             model="llama-3.1-8b-instant",
             messages=[{"role": "user", "content": prompt}],
-            response_format={"type": "json_object"}
+            response_format={"type": "json_object"},
         )
 
         return json.loads(response.choices[0].message.content)
