@@ -1,5 +1,4 @@
 services:
-
   app:
     build: .
     env_file:
@@ -12,7 +11,7 @@ services:
     restart: on-failure
 
   worker-1:
-    build: .
+    build: ./worker
     command: python -m app.workers.ml_worker
     env_file:
       - .env
@@ -22,9 +21,12 @@ services:
       rabbitmq:
         condition: service_healthy
     restart: on-failure
+    volumes:
+      - ./app:/app/app
+      - huggingface_cache:/root/.cache/huggingface
 
   worker-2:
-    build: .
+    build: ./worker
     command: python -m app.workers.ml_worker
     env_file:
       - .env
@@ -34,6 +36,9 @@ services:
       rabbitmq:
         condition: service_healthy
     restart: on-failure
+    volumes:
+      - ./app:/app/app
+      - huggingface_cache:/root/.cache/huggingface
 
   web-proxy:
     build: ./web-proxy
@@ -51,7 +56,7 @@ services:
     restart: on-failure
     volumes:
       - postgres_volume:/var/lib/postgresql/data
-    healthcheck:                                                                                                                                                              
+    healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
       interval: 10s
       timeout: 15s
@@ -64,7 +69,7 @@ services:
     restart: on-failure
     volumes:
       - rabbitmq_volume:/var/lib/rabbitmq
-    healthcheck:                                                                                                                                                              
+    healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "ping"]
       interval: 10s
       timeout: 15s
@@ -76,3 +81,4 @@ services:
 volumes:
   postgres_volume:
   rabbitmq_volume:
+  huggingface_cache:
