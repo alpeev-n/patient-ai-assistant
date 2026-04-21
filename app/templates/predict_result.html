@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+{% block title %}Результат анализа — PatientAI{% endblock %}
+
+{% block styles %}
+.page-header { margin-bottom: 2rem; }
+.page-header h1 { font-size: 1.6rem; font-weight: 600; margin-bottom: 0.25rem; }
+.page-header p { color: var(--text-muted); font-size: 0.9rem; }
+
+.result-grid {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.result-card-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface-2);
+}
+
+.result-card-header h2 { font-size: 1rem; font-weight: 600; }
+
+.result-card-body { padding: 1.5rem; }
+
+.pending-state {
+    text-align: center;
+    padding: 3rem 2rem;
+}
+
+.spinner-lg {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.pending-state p { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem; }
+
+.result-section { margin-bottom: 1.75rem; }
+.result-section:last-child { margin-bottom: 0; }
+
+.result-section h3 {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.result-section p {
+    font-size: 0.9rem;
+    line-height: 1.75;
+    color: var(--text);
+}
+
+.questions-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.questions-list li {
+    font-size: 0.875rem;
+    padding: 0.65rem 0.9rem;
+    background: var(--primary-light);
+    border-radius: 8px;
+    color: var(--text);
+    line-height: 1.5;
+}
+
+.questions-list li::before {
+    content: '?';
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 0.7rem;
+    font-weight: 700;
+    margin-right: 0.6rem;
+    flex-shrink: 0;
+}
+
+.plan-group { margin-bottom: 1rem; }
+.plan-group-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 0.4rem;
+    text-transform: capitalize;
+}
+
+.plan-items { display: flex; flex-direction: column; gap: 0.3rem; }
+.plan-item {
+    font-size: 0.875rem;
+    padding: 0.5rem 0.8rem;
+    background: var(--success-light);
+    border-radius: 6px;
+    color: var(--text);
+}
+
+.rec-card {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.9rem 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.rec-title { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.3rem; }
+.rec-text { font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; }
+.rec-source { font-size: 0.7rem; color: var(--primary); margin-top: 0.3rem; }
+
+.aside-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.aside-card h4 {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+}
+
+.input-quote {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.65;
+    font-style: italic;
+    border-left: 3px solid var(--primary);
+    padding-left: 0.75rem;
+}
+
+@media (max-width: 768px) {
+    .result-grid { grid-template-columns: 1fr; }
+}
+{% endblock %}
+
+{% block content %}
+{% if task.status.value in ['pending', 'running'] %}
+<meta http-equiv="refresh" content="3">
+{% endif %}
+
+<div class="page-header">
+    <h1>Результат анализа</h1>
+    <p>
+        Запрос создан: {{ task.created_at.strftime('%d.%m.%Y в %H:%M') if task.created_at else '—' }}
+        &nbsp;&nbsp;
+        <span class="badge badge-{% if task.status.value == 'done' %}success{% elif task.status.value == 'failed' %}danger{% else %}warning{% endif %}">
+            {{ task.status.value }}
+        </span>
+    </p>
+</div>
+
+<div class="result-grid">
+    <div>
+        <div class="result-card">
+            <div class="result-card-header">
+                <h2>Анализ симптомов</h2>
+                <a href="/predict" class="btn btn-ghost btn-sm">Новый запрос</a>
+            </div>
+            <div class="result-card-body">
+
+                {% if task.status.value in ['pending', 'running'] %}
+                    <div class="pending-state">
+                        <div class="spinner-lg"></div>
+                        <strong>Обрабатывается...</strong>
+                        <p>Страница обновится автоматически через несколько секунд</p>
+                    </div>
+
+                {% elif task.status.value == 'failed' %}
+                    <div class="alert alert-error">
+                        Запрос завершился с ошибкой. Кредиты возвращены не будут — обратитесь в поддержку.
+                    </div>
+
+                {% elif task.result %}
+                    {% if task.result.get('diagnosis_summary') %}
+                    <div class="result-section">
+                        <h3>Предварительный диагноз</h3>
+                        <p>{{ task.result.get('diagnosis_summary') }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if task.result.get('psychological_support') %}
+                    <div class="result-section">
+                        <h3>Психологическая поддержка</h3>
+                        <p>{{ task.result.get('psychological_support') }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if task.result.get('doctor_questions') %}
+                    <div class="result-section">
+                        <h3>Вопросы для врача</h3>
+                        <ul class="questions-list">
+                            {% for q in task.result.get('doctor_questions', []) %}
+                            <li>{{ q }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    {% if task.result.get('examination_plan') %}
+                    <div class="result-section">
+                        <h3>План обследования</h3>
+                        {% set plan = task.result.get('examination_plan', {}) %}
+                        {% for group, items in plan.items() %}
+                        <div class="plan-group">
+                            <div class="plan-group-title">{{ group.replace('_', ' ') }}</div>
+                            <div class="plan-items">
+                                {% for item in items %}
+                                <div class="plan-item">{{ item }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    {% if task.result.get('evidence_based_recommendations') %}
+                    <div class="result-section">
+                        <h3>Рекомендации</h3>
+                        {% for rec in task.result.get('evidence_based_recommendations', []) %}
+                        <div class="rec-card">
+                            <div class="rec-title">{{ rec.get('title') }}</div>
+                            <div class="rec-text">{{ rec.get('recommendation') }}</div>
+                            {% if rec.get('source') %}
+                            <div class="rec-source">Источник: {{ rec.get('source') }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <div class="aside-card">
+            <h4>Ваш запрос</h4>
+            <div class="input-quote">
+                {{ task.input_data.get('symptoms', '—') if task.input_data else '—' }}
+            </div>
+        </div>
+
+        <div class="aside-card">
+            <h4>История</h4>
+            <a href="/history" class="btn btn-ghost" style="width:100%">Все запросы</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
