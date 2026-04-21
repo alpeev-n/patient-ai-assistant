@@ -1,3 +1,4 @@
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -7,7 +8,7 @@ from app.services.user_service import UserService
 from app.db.models.ml_model import MLModel
 from app.db.models.ml_task import MLTask
 from app.models.enums import TaskStatus
-
+from app.publisher import publish_ml_task
 
 router = APIRouter(prefix="/predict")
 
@@ -31,14 +32,25 @@ def predict_request(data: PredictRequest, db: Session = Depends(get_db)):
         user_id=user.id,
         model_id=model.id,
         input_data=data.input_data,
-        status=TaskStatus.DONE,
+        status=TaskStatus.PENDING,
     )
     db.add(task)
     db.flush()
 
-    service.withdraw(user_id=user.id, amount=model.cost, task_id=task.id)
+    try:
+        service.withdraw(user_id=user.id, amount=model.cost, task_id=task.id)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_402_PAYMENT_REQUIRED, detail=str(e))
 
     db.commit()
     db.refresh(task)
+
+    message = {
+        "task_id": task.id,
+        "features": data.input_data,
+        "model": data.model,
+        "timestamp": datetime.utcnow().isoformat(),
+    }
+    publish_ml_task(message)
 
     return PredictResponse(task_id=task.id, result=task.result, status=task.status)
