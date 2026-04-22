@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PatientAI{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #f5f7fa;
+            --surface: #ffffff;
+            --surface-2: #f8fafc;
+            --border: #e2e8f0;
+            --primary: #1e6fe0;
+            --primary-light: #eff6ff;
+            --primary-dark: #1a5cc7;
+            --success: #059669;
+            --success-light: #ecfdf5;
+            --danger: #dc2626;
+            --danger-light: #fef2f2;
+            --warning: #d97706;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --text-light: #94a3b8;
+            --font: 'Outfit', sans-serif;
+            --radius: 10px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+        }
+
+        html { font-size: 17px; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font);
+            font-weight: 400;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Navigation */
+        nav {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+
+        .nav-logo {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .nav-logo svg { width: 22px; height: 22px; }
+
+        .nav-links { display: flex; align-items: center; gap: 0.5rem; }
+
+        .nav-user {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            padding: 0 0.75rem;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            font-family: var(--font);
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 0.55rem 1.25rem;
+            border-radius: var(--radius);
+            border: 1px solid transparent;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+
+        .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+        .btn-primary:hover { background: var(--primary-dark); border-color: var(--primary-dark); }
+
+        .btn-ghost { background: transparent; color: var(--text-muted); border-color: var(--border); }
+        .btn-ghost:hover { color: var(--text); border-color: var(--text-light); background: var(--surface-2); }
+
+        .btn-danger { background: var(--danger-light); color: var(--danger); border-color: #fecaca; }
+        .btn-danger:hover { background: var(--danger); color: #fff; }
+
+        .btn-lg { font-size: 1rem; padding: 0.75rem 1.75rem; }
+        .btn-sm { font-size: 0.8rem; padding: 0.35rem 0.9rem; }
+
+        /* Layout */
+        main { flex: 1; }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
+
+        /* Cards */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 0.85rem 1.25rem;
+            border-radius: var(--radius);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .alert-error { background: var(--danger-light); color: var(--danger); border: 1px solid #fecaca; }
+        .alert-success { background: var(--success-light); color: var(--success); border: 1px solid #a7f3d0; }
+
+        /* Forms */
+        .form-group { margin-bottom: 1.25rem; }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text);
+            margin-bottom: 0.4rem;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            font-family: var(--font);
+            font-size: 0.95rem;
+            padding: 0.65rem 0.9rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--surface);
+            color: var(--text);
+            transition: border-color 0.15s, box-shadow 0.15s;
+            outline: none;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(30, 111, 224, 0.12);
+        }
+
+        textarea { resize: vertical; min-height: 120px; }
+
+        .form-hint { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.3rem; }
+
+        /* Badge */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 0.2rem 0.6rem;
+            border-radius: 999px;
+        }
+        .badge-success { background: var(--success-light); color: var(--success); }
+        .badge-danger { background: var(--danger-light); color: var(--danger); }
+        .badge-warning { background: #fffbeb; color: var(--warning); }
+        .badge-neutral { background: var(--surface-2); color: var(--text-muted); border: 1px solid var(--border); }
+
+        /* Footer */
+        footer {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            padding: 1.25rem 2rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        /* Utilities */
+        .mt-1 { margin-top: 0.5rem; }
+        .mt-2 { margin-top: 1rem; }
+        .mt-3 { margin-top: 1.5rem; }
+        .mt-4 { margin-top: 2rem; }
+        .mb-1 { margin-bottom: 0.5rem; }
+        .mb-2 { margin-bottom: 1rem; }
+        .text-muted { color: var(--text-muted); }
+        .text-sm { font-size: 0.85rem; }
+        .text-center { text-align: center; }
+        .d-flex { display: flex; }
+        .align-center { align-items: center; }
+        .gap-1 { gap: 0.5rem; }
+        .gap-2 { gap: 1rem; }
+
+        {% block styles %}{% endblock %}
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/" class="nav-logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+            </svg>
+            PatientAI
+        </a>
+        <div class="nav-links">
+            {% if user %}
+                <span class="nav-user">{{ user.email }}</span>
+                <a href="/dashboard" class="btn btn-ghost btn-sm">Кабинет</a>
+                <a href="/predict" class="btn btn-ghost btn-sm">ML-запрос</a>
+                <a href="/history" class="btn btn-ghost btn-sm">История</a>
+                <a href="/logout" class="btn btn-danger btn-sm">Выйти</a>
+            {% else %}
+                <a href="/login" class="btn btn-ghost btn-sm">Войти</a>
+                <a href="/register" class="btn btn-primary btn-sm">Регистрация</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <main>
+        <div class="container" style="padding-top: 1.5rem; padding-bottom: 2rem;">
+            {% if error %}
+                <div class="alert alert-error">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    {{ error }}
+                </div>
+            {% endif %}
+            {% if success %}
+                <div class="alert alert-success">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                    {{ success }}
+                </div>
+            {% endif %}
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <footer>PatientAI &mdash; Интеллектуальная поддержка пациентов &mdash; 2026</footer>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>
