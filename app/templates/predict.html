@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+{% block title %}ML-запрос — PatientAI{% endblock %}
+
+{% block styles %}
+.page-header { margin-bottom: 2rem; }
+.page-header h1 { font-size: 1.6rem; font-weight: 600; margin-bottom: 0.25rem; }
+.page-header p { color: var(--text-muted); font-size: 0.9rem; }
+
+.predict-grid {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.predict-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 2rem;
+}
+
+.predict-card h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
+
+.char-count {
+    text-align: right;
+    font-size: 0.75rem;
+    color: var(--text-light);
+    margin-top: 0.3rem;
+}
+
+.result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    display: none;
+}
+
+.result-card.visible { display: block; }
+
+.result-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.result-header h3 { font-size: 0.95rem; font-weight: 600; }
+
+.result-body {
+    padding: 1.5rem;
+    font-size: 0.9rem;
+    line-height: 1.75;
+    color: var(--text);
+    white-space: pre-wrap;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.info-aside {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.aside-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.25rem;
+}
+
+.aside-card h4 { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+.cost-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.875rem;
+}
+.cost-row:last-child { border-bottom: none; }
+.cost-value { font-weight: 600; }
+
+.balance-pill {
+    background: var(--primary-light);
+    color: var(--primary);
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.balance-pill strong { font-size: 1.05rem; }
+
+.spinner {
+    display: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255,255,255,0.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin-right: 0.5rem;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+.btn-loading .spinner { display: inline-block; }
+.btn-loading .btn-text { display: none; }
+
+@media (max-width: 768px) {
+    .predict-grid { grid-template-columns: 1fr; }
+}
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>ML-запрос</h1>
+    <p>Опишите симптомы — система проведёт анализ и сформирует рекомендации</p>
+</div>
+
+<div class="predict-grid">
+    <div style="display:flex;flex-direction:column;gap:1.25rem">
+        <div class="predict-card">
+            <h2>Описание симптомов</h2>
+            <form id="predict-form" method="POST" action="/predict/submit">
+                <div class="form-group">
+                    <label for="symptoms">Опишите ваши симптомы и жалобы</label>
+                    <textarea id="symptoms" name="symptoms" rows="8"
+                              placeholder="Например: головная боль в области висков в течение 3 дней, усиливается при движении, сопровождается лёгкой тошнотой..."
+                              required maxlength="2000" oninput="updateCount(this)"></textarea>
+                    <div class="char-count"><span id="char-count">0</span> / 2000</div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg" id="submit-btn">
+                    <span class="spinner"></span>
+                    <span class="btn-text">Отправить запрос</span>
+                </button>
+            </form>
+        </div>
+
+        {% if task %}
+        <div class="result-card visible" id="result-card">
+            <div class="result-header">
+                <h3>Результат анализа</h3>
+                <span class="badge badge-{% if task.status.value == 'done' %}success{% elif task.status.value == 'failed' %}danger{% else %}warning{% endif %}">
+                    {{ task.status.value }}
+                </span>
+            </div>
+            <div class="result-body">
+                {% if task.status.value in ['pending', 'running'] %}
+                    <div style="text-align:center;padding:2rem">
+                        <div class="spinner" style="display:inline-block;width:28px;height:28px;border-width:3px;border-color:var(--border);border-top-color:var(--primary);margin-bottom:1rem"></div>
+                        <p style="color:var(--text-muted)">Обрабатывается... страница обновится автоматически</p>
+                    </div>
+                {% elif task.status.value == 'failed' %}
+                    <p style="color:var(--danger)">Запрос завершился с ошибкой.</p>
+                {% elif task.result %}
+                    {% if task.result.get('diagnosis_summary') %}<p><strong>Диагноз:</strong> {{ task.result.get('diagnosis_summary') }}</p><br>{% endif %}
+                    {% if task.result.get('psychological_support') %}<p><strong>Поддержка:</strong> {{ task.result.get('psychological_support') }}</p><br>{% endif %}
+                    {% if task.result.get('doctor_questions') %}
+                    <p><strong>Вопросы для врача:</strong></p>
+                    <ul style="margin:0.5rem 0 1rem 1.25rem;display:flex;flex-direction:column;gap:0.3rem">
+                        {% for q in task.result.get('doctor_questions', []) %}<li style="font-size:0.875rem">{{ q }}</li>{% endfor %}
+                    </ul>
+                    {% endif %}
+                    {% if task.result.get('examination_plan') %}
+                    <p><strong>План обследования:</strong></p>
+                    {% for group, items in task.result.get('examination_plan', {}).items() %}
+                    <p style="font-size:0.8rem;color:var(--text-muted);margin:0.5rem 0 0.25rem;text-transform:capitalize">{{ group.replace('_', ' ') }}</p>
+                    <ul style="margin:0 0 0.75rem 1.25rem;display:flex;flex-direction:column;gap:0.2rem">
+                        {% for item in items %}<li style="font-size:0.875rem">{{ item }}</li>{% endfor %}
+                    </ul>
+                    {% endfor %}
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="info-aside">
+        <div class="aside-card">
+            <h4>Ваш баланс</h4>
+            <div class="balance-pill">
+                <span>Доступно</span>
+                <strong>{{ "%.2f"|format(user.balance) }} кр.</strong>
+            </div>
+            {% if user.balance <= 0 %}
+                <div class="alert alert-error mt-2" style="margin-bottom:0">
+                    Недостаточно средств. <a href="/dashboard">Пополнить баланс</a>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="aside-card">
+            <h4>Стоимость запроса</h4>
+            <div class="cost-row">
+                <span>Анализ симптомов</span>
+                <span class="cost-value">{{ cost or '—' }} кр.</span>
+            </div>
+        </div>
+
+        <div class="aside-card">
+            <h4>Как это работает</h4>
+            <p style="font-size:0.825rem;color:var(--text-muted);line-height:1.7">
+                Ваш запрос обрабатывается языковой моделью через RabbitMQ.
+                Кредиты списываются только при успешном выполнении.
+                Результат сохраняется в истории.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function updateCount(el) {
+    document.getElementById('char-count').textContent = el.value.length;
+}
+
+document.getElementById('predict-form').addEventListener('submit', function(e) {
+    const btn = document.getElementById('submit-btn');
+    btn.classList.add('btn-loading');
+    btn.disabled = true;
+});
+
+{% if task and task.status.value in ['pending', 'running'] %}
+setTimeout(function() { location.reload(); }, 3000);
+{% endif %}
+</script>
+{% endblock %}

@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.models.enums import TransactionType
 from app.db.models import User
 from app.db.models import Transaction
+from app.jwt import hash_password
 
 
 class UserService:
@@ -11,7 +12,7 @@ class UserService:
         self.__session = session
 
     def create_user(self, email: str, password: str, role: str) -> User:
-        user = User(email=email, hashed_password=password, role=role)
+        user = User(email=email, hashed_password=hash_password(password), role=role)
         self.__session.add(user)
         self.__session.commit()
         self.__session.refresh(user)
