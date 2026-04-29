@@ -1,0 +1,75 @@
+services:
+  app:
+    build: .
+    env_file:
+      - .env.test
+    depends_on:
+      database:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: on-failure
+    ports:
+      - 8000:8000
+
+  worker-1:
+    build: ./worker
+    command: python -m app.workers.ml_worker
+    env_file:
+      - .env.test
+    depends_on:
+      database:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: on-failure
+    volumes:
+      - huggingface_cache:/root/.cache/huggingface
+
+  worker-2:
+    build: ./worker
+    command: python -m app.workers.ml_worker
+    env_file:
+      - .env.test
+    depends_on:
+      database:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: on-failure
+    volumes:
+      - huggingface_cache:/root/.cache/huggingface
+
+  database:
+    image: postgres:16
+    env_file:
+      - .env.test
+    restart: on-failure
+    volumes:
+      - postgres_test_volume:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      interval: 10s
+      timeout: 15s
+      retries: 3
+
+  rabbitmq:
+    image: rabbitmq:management
+    env_file:
+      - .env.test
+    restart: on-failure
+    volumes:
+      - rabbitmq_volume:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 15s
+      retries: 3
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+volumes:
+  postgres_test_volume:
+  rabbitmq_volume:
+  huggingface_cache:
