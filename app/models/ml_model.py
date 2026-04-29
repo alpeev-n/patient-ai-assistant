@@ -21,7 +21,7 @@ class PatientAssistantModel(MLModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._client = OpenAI(
-            api_key=os.getenv("QWEN_API_KEY"), base_url=os.getenv("QWEN_BASE_URL")
+            api_key=os.getenv("GROQ_API_KEY"), base_url=os.getenv("GROQ_BASE_URL")
         )
 
     def predict(self, input_data: dict) -> dict:
