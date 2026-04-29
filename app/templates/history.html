@@ -164,12 +164,12 @@ tr:hover td { background: var(--surface-2); }
                             {{ tx.created_at.strftime('%d.%m.%Y %H:%M') if tx.created_at else '—' }}
                         </td>
                         <td>
-                            <span class="badge badge-{% if tx.type.value == 'CREDIT' %}success{% else %}danger{% endif %}">
-                                {{ 'Пополнение' if tx.type.value == 'CREDIT' else 'Списание' }}
+                            <span class="badge badge-{% if tx.type.value == "credit" %}success{% else %}danger{% endif %}">
+                                {{ 'Пополнение' if tx.type.value == "credit" else 'Списание' }}
                             </span>
                         </td>
-                        <td class="{% if tx.type.value == 'CREDIT' %}amount-credit{% else %}amount-debit{% endif %}">
-                            {{ '+' if tx.type.value == 'CREDIT' else '-' }}{{ "%.2f"|format(tx.amount) }} кр.
+                        <td class="{% if tx.type.value == "credit" %}amount-credit{% else %}amount-debit{% endif %}">
+                            {{ '+' if tx.type.value == "credit" else '-' }}{{ "%.2f"|format(tx.amount) }} кр.
                         </td>
                     </tr>
                     {% endfor %}
